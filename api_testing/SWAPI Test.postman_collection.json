@@ -1,0 +1,505 @@
+{
+	"info": {
+		"_postman_id": "4e34461d-e92a-4c24-9771-fcec1602e5e5",
+		"name": "SWAPI Test",
+		"description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "51353825",
+		"_collection_link": "https://danieldelrosariopimienta-9028896.postman.co/workspace/Dani-Del-Rosario's-Workspace~ad03c665-45a6-4f80-823d-8b2fdc5155da/collection/51353825-4e34461d-e92a-4c24-9771-fcec1602e5e5?action=share&source=collection_link&creator=51353825"
+	},
+	"item": [
+		{
+			"name": "People",
+			"item": [
+				{
+					"name": "Get all people",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is JSON\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has main properties\", function () {",
+									"    const json = pm.response.json();",
+									"",
+									"    pm.expect(json).to.have.property(\"count\");",
+									"    pm.expect(json).to.have.property(\"next\");",
+									"    pm.expect(json).to.have.property(\"previous\");",
+									"    pm.expect(json).to.have.property(\"results\");",
+									"});",
+									"",
+									"pm.test(\"Results is a non-empty array\", function () {",
+									"    const results = pm.response.json().results;",
+									"    pm.expect(results).to.be.an(\"array\");",
+									"    pm.expect(results.length).to.be.greaterThan(0);",
+									"}); ",
+									"",
+									"pm.test(\"Next page is present\", function () {",
+									"    const json = pm.response.json();",
+									"    pm.expect(json.next).to.not.be.null;",
+									"    if (json.next) {",
+									"    pm.environment.set(\"nextPageUrl\", json.next);",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Each person has mandatory fields\", () => {",
+									"    const person = pm.response.json().results[0];",
+									"",
+									"    pm.expect(person).to.have.property(\"name\");",
+									"    pm.expect(person).to.have.property(\"gender\");",
+									"    pm.expect(person).to.have.property(\"height\");",
+									"    pm.expect(person).to.have.property(\"url\");",
+									"    pm.environment.set(\"personUrl\", person.url);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/people",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"people"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get person by URL",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is JSON\", () => {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"const json = pm.response.json();",
+									"",
+									"pm.test(\"Person has mandatory fields\", () => {",
+									"    pm.expect(json.name).to.be.a(\"string\").and.not.empty;",
+									"    pm.expect(json.gender).to.be.a(\"string\");",
+									"    pm.expect(json.height).to.be.a(\"string\");",
+									"    pm.expect(json.url).to.be.a(\"string\");",
+									"});",
+									"",
+									"pm.test(\"Films is an array\", () => {",
+									"    pm.expect(json.films).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Homeworld is a valid URL\", () => {",
+									"    pm.expect(json.homeworld).to.match(/^https?:\\/\\//);",
+									"});",
+									"",
+									"if (json.films.length > 0) {",
+									"    pm.environment.set(\"filmUrl\", json.films[0]);",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{personUrl}}",
+							"host": [
+								"{{personUrl}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search people by name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const json = pm.response.json();",
+									"",
+									"pm.test(\"Search returns results\", () => {",
+									"    pm.expect(json.results.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"pm.test(\"All results contain the search term in name\", () => {",
+									"    json.results.forEach(person => {",
+									"        pm.expect(person.name.toLowerCase()).to.include(\"luke\");",
+									"    });",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/people?search=luke",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"people"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "luke"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get person by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const person = pm.response.json();",
+									"",
+									"pm.test(\"Person has required fields\", () => {",
+									"    pm.expect(person).to.have.property(\"name\");",
+									"    pm.expect(person).to.have.property(\"height\");",
+									"    pm.expect(person).to.have.property(\"mass\");",
+									"    pm.expect(person).to.have.property(\"films\");",
+									"});",
+									"",
+									"pm.test(\"Films is an array\", () => {",
+									"    pm.expect(person.films).to.be.an(\"array\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/people/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"people",
+								"1"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "People schema",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/films/schema/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"films",
+								"schema",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Root",
+			"item": [
+				{
+					"name": "Api Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Api info is correct\", function () {",
+									"    pm.response.to.have.jsonBody({",
+									"        \"films\": \"https://swapi.dev/api/films/\",",
+									"        \"people\": \"https://swapi.dev/api/people/\",",
+									"        \"planets\": \"https://swapi.dev/api/planets/\",",
+									"        \"species\": \"https://swapi.dev/api/species/\",",
+									"        \"starships\": \"https://swapi.dev/api/starships/\",",
+									"        \"vehicles\": \"https://swapi.dev/api/vehicles/\"",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://swapi.dev/api/",
+							"protocol": "https",
+							"host": [
+								"swapi",
+								"dev"
+							],
+							"path": [
+								"api",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vehicles",
+			"item": [
+				{
+					"name": "Get all vehicles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is normal\", () => {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Response is JSON\", () => {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Response has pagination structure\", () => {",
+									"    const json = pm.response.json();",
+									"",
+									"    pm.expect(json).to.have.property(\"count\");",
+									"    pm.expect(json).to.have.property(\"next\");",
+									"    pm.expect(json).to.have.property(\"previous\");",
+									"    pm.expect(json).to.have.property(\"results\");",
+									"    pm.expect(json.results).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Results contain vehicles with required fields\", () => {",
+									"    const vehicle = pm.response.json().results[0];",
+									"",
+									"    pm.expect(vehicle).to.have.property(\"name\");",
+									"    pm.expect(vehicle).to.have.property(\"model\");",
+									"    pm.expect(vehicle).to.have.property(\"vehicle_class\");",
+									"    pm.expect(vehicle).to.have.property(\"manufacturer\");",
+									"    pm.expect(vehicle).to.have.property(\"url\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vehicles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vehicles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get vehicle by id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", () => {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const vehicle = pm.response.json();",
+									"",
+									"pm.test(\"Vehicle has all mandatory attributes\", () => {",
+									"    const requiredFields = [",
+									"        \"name\",",
+									"        \"model\",",
+									"        \"vehicle_class\",",
+									"        \"manufacturer\",",
+									"        \"length\",",
+									"        \"cost_in_credits\",",
+									"        \"crew\",",
+									"        \"passengers\",",
+									"        \"max_atmosphering_speed\",",
+									"        \"cargo_capacity\",",
+									"        \"films\",",
+									"        \"pilots\",",
+									"        \"url\",",
+									"        \"created\",",
+									"        \"edited\"",
+									"    ];",
+									"",
+									"    requiredFields.forEach(field => {",
+									"        pm.expect(vehicle).to.have.property(field);",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Films and pilots are arrays\", () => {",
+									"    pm.expect(vehicle.films).to.be.an(\"array\");",
+									"    pm.expect(vehicle.pilots).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"URL contains correct vehicle ID\", () => {",
+									"    pm.expect(vehicle.url).to.be.eq(pm.request.url.toString());",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vehicles/8/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vehicles",
+								"8",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search vehicle by name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Search returns results\", () => {",
+									"    const results = pm.response.json().results;",
+									"    pm.expect(results.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"pm.test(\"Search results contain searched term\", () => {",
+									"    const results = pm.response.json().results;",
+									"    const searchParam = pm.request.url.query.get(\"search\").toLowerCase();",
+									"",
+									"    results.forEach(vehicle => {",
+									"        const combined = `${vehicle.name} ${vehicle.model}`.toLowerCase();",
+									"        pm.expect(combined).to.include(searchParam);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/vehicles?search=AT-AT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"vehicles"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "AT-AT"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
