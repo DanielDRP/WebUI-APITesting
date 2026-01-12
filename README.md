@@ -12,4 +12,4 @@ npx playwright test
 
 ## Run SWAPI Test
 
-Import SWAPI_Postman_Collection.json into Postman
+Import SWAPI_Test.postman_collection.json into Postman
