@@ -8,6 +8,7 @@
 ```bash
 npm install
 npx playwright test
+```
 
 ## Run SWAPI Test
 
