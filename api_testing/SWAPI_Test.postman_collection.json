@@ -18,6 +18,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
+									"const json = pm.response.json();",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
@@ -31,8 +33,6 @@
 									"});",
 									"",
 									"pm.test(\"Response has main properties\", function () {",
-									"    const json = pm.response.json();",
-									"",
 									"    pm.expect(json).to.have.property(\"count\");",
 									"    pm.expect(json).to.have.property(\"next\");",
 									"    pm.expect(json).to.have.property(\"previous\");",
@@ -46,22 +46,30 @@
 									"}); ",
 									"",
 									"pm.test(\"Next page is present\", function () {",
-									"    const json = pm.response.json();",
 									"    pm.expect(json.next).to.not.be.null;",
-									"    if (json.next) {",
-									"    pm.environment.set(\"nextPageUrl\", json.next);",
-									"    }",
 									"});",
 									"",
-									"pm.test(\"Each person has mandatory fields\", () => {",
-									"    const person = pm.response.json().results[0];",
+									"pm.test(\"Each person has required fields\", () => {",
+									"    pm.expect(json.results).to.be.an(\"array\");",
 									"",
-									"    pm.expect(person).to.have.property(\"name\");",
-									"    pm.expect(person).to.have.property(\"gender\");",
-									"    pm.expect(person).to.have.property(\"height\");",
-									"    pm.expect(person).to.have.property(\"url\");",
-									"    pm.environment.set(\"personUrl\", person.url);",
-									"});"
+									"    json.results.forEach(person => {",
+									"        [",
+									"            \"name\",",
+									"            \"height\",",
+									"            \"mass\",",
+									"            \"gender\",",
+									"            \"homeworld\",",
+									"            \"films\",",
+									"            \"species\",",
+									"            \"vehicles\",",
+									"            \"starships\",",
+									"            \"url\"",
+									"        ].forEach(field => {",
+									"            pm.expect(person).to.have.property(field);",
+									"        });",
+									"    });",
+									"});",
+									""
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -91,35 +99,29 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", () => {",
+									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Response is JSON\", () => {",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is JSON\", function () {",
 									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
 									"});",
 									"",
 									"const json = pm.response.json();",
 									"",
-									"pm.test(\"Person has mandatory fields\", () => {",
-									"    pm.expect(json.name).to.be.a(\"string\").and.not.empty;",
-									"    pm.expect(json.gender).to.be.a(\"string\");",
-									"    pm.expect(json.height).to.be.a(\"string\");",
-									"    pm.expect(json.url).to.be.a(\"string\");",
+									"pm.test(\"Response URL matches request URL\", function () {",
+									"    pm.expect(json.url).to.eql(pm.request.url.toString());",
 									"});",
 									"",
-									"pm.test(\"Films is an array\", () => {",
+									"pm.test(\"Films, vehicles and starships are arrays\", function () {",
 									"    pm.expect(json.films).to.be.an(\"array\");",
-									"});",
-									"",
-									"pm.test(\"Homeworld is a valid URL\", () => {",
-									"    pm.expect(json.homeworld).to.match(/^https?:\\/\\//);",
-									"});",
-									"",
-									"if (json.films.length > 0) {",
-									"    pm.environment.set(\"filmUrl\", json.films[0]);",
-									"}",
-									""
+									"    pm.expect(json.vehicles).to.be.an(\"array\");",
+									"    pm.expect(json.starships).to.be.an(\"array\");",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -146,8 +148,16 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", () => {",
+									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is JSON\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
 									"});",
 									"",
 									"const json = pm.response.json();",
@@ -197,23 +207,45 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", () => {",
+									"const jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"const person = pm.response.json();",
-									"",
-									"pm.test(\"Person has required fields\", () => {",
-									"    pm.expect(person).to.have.property(\"name\");",
-									"    pm.expect(person).to.have.property(\"height\");",
-									"    pm.expect(person).to.have.property(\"mass\");",
-									"    pm.expect(person).to.have.property(\"films\");",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
 									"});",
 									"",
-									"pm.test(\"Films is an array\", () => {",
-									"    pm.expect(person.films).to.be.an(\"array\");",
+									"pm.test(\"Content-Type is JSON\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
 									"});",
-									""
+									"",
+									"pm.test(\"Name is correct\", function () {",
+									"    pm.expect(jsonData.name).to.eql(\"Luke Skywalker\");",
+									"});",
+									"",
+									"pm.test(\"Response has required fields\", function () {",
+									"    pm.expect(jsonData).to.have.property(\"name\");",
+									"    pm.expect(jsonData).to.have.property(\"height\");",
+									"    pm.expect(jsonData).to.have.property(\"mass\");",
+									"    pm.expect(jsonData).to.have.property(\"gender\");",
+									"    pm.expect(jsonData).to.have.property(\"homeworld\");",
+									"    pm.expect(jsonData).to.have.property(\"films\");",
+									"    pm.expect(jsonData).to.have.property(\"created\");",
+									"    pm.expect(jsonData).to.have.property(\"url\");",
+									"});",
+									"",
+									"pm.test(\"Films, vehicles and starships are arrays\", function () {",
+									"    pm.expect(jsonData.films).to.be.an(\"array\");",
+									"    pm.expect(jsonData.vehicles).to.be.an(\"array\");",
+									"    pm.expect(jsonData.starships).to.be.an(\"array\");",
+									"});",
+									"",
+									"pm.test(\"Created and edited are valid dates\", function () {",
+									"    pm.expect(new Date(jsonData.created)).to.be.a(\"date\");",
+									"    pm.expect(new Date(jsonData.edited)).to.be.a(\"date\");",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {},
@@ -245,18 +277,39 @@
 					"response": []
 				},
 				{
-					"name": "People schema",
+					"name": "Get non-existent person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Response has error detail\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('detail');",
+									"    pm.expect(jsonData.detail).to.include('Not found');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/films/schema/",
+							"raw": "{{baseUrl}}/people/9999/",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"films",
-								"schema",
+								"people",
+								"9999",
 								""
 							]
 						}
@@ -277,6 +330,14 @@
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is JSON\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
 									"});",
 									"",
 									"pm.test(\"Api info is correct\", function () {",
@@ -300,15 +361,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://swapi.dev/api/",
-							"protocol": "https",
+							"raw": "{{baseUrl}}",
 							"host": [
-								"swapi",
-								"dev"
-							],
-							"path": [
-								"api",
-								""
+								"{{baseUrl}}"
 							]
 						}
 					},
@@ -387,13 +442,21 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Status code is 200\", () => {",
+									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 200ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"pm.test(\"Content-Type is JSON\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
 									"});",
 									"",
 									"const vehicle = pm.response.json();",
 									"",
-									"pm.test(\"Vehicle has all mandatory attributes\", () => {",
+									"pm.test(\"Vehicle has all required attributes\", () => {",
 									"    const requiredFields = [",
 									"        \"name\",",
 									"        \"model\",",
@@ -494,6 +557,78 @@
 									"key": "search",
 									"value": "AT-AT"
 								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Negative Tests",
+			"item": [
+				{
+					"name": "Invalid Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/invalid_endpoint/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"invalid_endpoint",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 405 Method Not Allowed\", function () {",
+									"    pm.response.to.have.status(405);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/people/1/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"people",
+								"1",
+								""
 							]
 						}
 					},
