@@ -21,28 +21,28 @@ test.describe('Authentication Tests', () => {
     await expect(page).toHaveURL(/inventory.html/);
   });
 
-  test('should show error with locked out user', async ({ page }) => {
+  test('should show error with locked out user', async () => {
     await loginPage.login(users.locked, PASSWORD);
     const errorMsg = await loginPage.getErrorMessage();
-    expect(errorMsg).toContain('Epic sadface: Sorry, this user has been locked out');
+    expect(errorMsg).toEqual('Epic sadface: Sorry, this user has been locked out.');
   });
 
-  test('should show error with invalid credentials', async ({ page }) => {
+  test('should show error with invalid credentials', async () => {
     await loginPage.login('invalid_user', 'wrong_password');
     const errorMsg = await loginPage.getErrorMessage();
-    expect(errorMsg).toContain('Username and password do not match');
+    expect(errorMsg).toEqual('Epic sadface: Username and password do not match any user in this service');
   });
 
-  test('should show error with empty username', async ({ page }) => {
+  test('should show error with empty username', async () => {
     await loginPage.login('', PASSWORD);
     const errorMsg = await loginPage.getErrorMessage();
-    expect(errorMsg).toContain('Username is required');
+    expect(errorMsg).toContain('Epic sadface: Username is required');
   });
 
-  test('should show error with empty password', async ({ page }) => {
+  test('should show error with empty password', async () => {
     await loginPage.login(users.standard, '');
     const errorMsg = await loginPage.getErrorMessage();
-    expect(errorMsg).toContain('Password is required');
+    expect(errorMsg).toContain('Epic sadface: Password is required');
   });
 
   test('should logout successfully', async ({ page }) => {

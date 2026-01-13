@@ -22,7 +22,7 @@ test.describe('Checkout Tests', () => {
     await inventoryPage.addItemToCart('Sauce Labs Backpack');
   });
 
-  test('should complete full checkout process', async ({ page }) => {
+  test('should complete full checkout process', async () => {
     await cartPage.goto();
     await cartPage.proceedToCheckout();
     
@@ -34,7 +34,7 @@ test.describe('Checkout Tests', () => {
     expect(completeMsg).toContain('Thank you for your order');
   });
 
-  test('should show error when checkout without first name', async ({ page }) => {
+  test('should show error when checkout without first name', async () => {
     await cartPage.goto();
     await cartPage.proceedToCheckout();
     
@@ -44,7 +44,7 @@ test.describe('Checkout Tests', () => {
     await expect(checkoutPage.errorMessage).toBeVisible();
   });
 
-  test('should show error when checkout without last name', async ({ page }) => {
+  test('should show error when checkout without last name', async () => {
     await cartPage.goto();
     await cartPage.proceedToCheckout();
     
@@ -54,7 +54,7 @@ test.describe('Checkout Tests', () => {
     await expect(checkoutPage.errorMessage).toBeVisible();
   });
 
-  test('should show error when checkout without postal code', async ({ page }) => {
+  test('should show error when checkout without postal code', async () => {
     await cartPage.goto();
     await cartPage.proceedToCheckout();
     
@@ -64,7 +64,7 @@ test.describe('Checkout Tests', () => {
     await expect(checkoutPage.errorMessage).toBeVisible();
   });
 
-  test('should remove item from cart', async ({ page }) => {
+  test('should remove item from cart', async () => {
     await cartPage.goto();
     const initialCount = await cartPage.getItemCount();
     expect(initialCount).toBe(1);
